@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+    	  <referenceContainer name="product.info.price">
+        <block class="SM\Catalogtab\Block\Product\View\Calculation"
+            name="product.view.calculation"
+            template="SM_Catalogtab::product/view/calculation.phtml"
+            after="product.info.sku">
+        </block>
+        
+    </referenceContainer>
+
+        <referenceContainer name="product.info.price">
+            <block class="Magento\Framework\View\Element\Template" name="custom.text" template="SM_Catalogtab::product/view/addprice.phtml" after="product.info.stock.sku"/>
+        </referenceContainer>
+    </body>
+</page>

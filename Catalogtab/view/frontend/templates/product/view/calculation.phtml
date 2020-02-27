@@ -1,0 +1,1252 @@
+<?php
+$metalKey = 'metal_type';
+$entityType = 'catalog_product';
+$purityAttributeKey = 'metal_purity';
+$ccKey = 'diamond_colour_clarity';
+
+
+
+
+$currentProduct = $block->getCurrentProduct();
+//$shipping_days = $block->getProductAttrValue('shipping_days');
+$productId = $currentProduct->getId();
+$productPrice = $currentProduct->getPrice();
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$attributeSet = $objectManager->create('Magento\Eav\Api\AttributeSetRepositoryInterface');
+//$current_product = $objectManager->create('\Magento\Catalog\Model\ProductRepository')->getById($product_id);
+$attributeSetRepository = $attributeSet->get($currentProduct->getAttributeSetId());
+$attribute_set_name = $attributeSetRepository->getAttributeSetName();
+$discount_title = '';
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $config = $objectManager->get('\Magento\Framework\App\Config\ScopeConfigInterface');
+/*diamond discount*/
+    $bangel_size = $config->getValue('sm_catalogtab/general/bangel_size',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $chain = $config->getValue('sm_catalogtab/general/chain',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $defualt = $config->getValue('sm_catalogtab/general/defualt',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $earring = $config->getValue('sm_catalogtab/general/earring',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $mangalsutra = $config->getValue('sm_catalogtab/general/mangalsutra',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $necklace = $config->getValue('sm_catalogtab/general/necklace',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $nose_pin = $config->getValue('sm_catalogtab/general/nose_pin',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $pendants = $config->getValue('sm_catalogtab/general/pendants',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    $ring = $config->getValue('sm_catalogtab/general/ring',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+/*making charge discount*/
+
+$bangel_size1 = $config->getValue('sm_catalogtab/general1/bangel_size1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $chain1 = $config->getValue('sm_catalogtab/general1/chain1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $defualt1 = $config->getValue('sm_catalogtab/general1/defualt1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $earring1 = $config->getValue('sm_catalogtab/general1/earring1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $mangalsutra1 = $config->getValue('sm_catalogtab/general1/mangalsutra1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $necklace1 = $config->getValue('sm_catalogtab/general1/necklace1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $nose_pin1 = $config->getValue('sm_catalogtab/general1/nose_pin1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $pendants1 = $config->getValue('sm_catalogtab/general1/pendants1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $ring1 = $config->getValue('sm_catalogtab/general1/ring1',\Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        /*diamond discount*/
+if($attribute_set_name == 'Bangel Size'){ $discount_diamond = $bangel_size; }
+if($attribute_set_name == 'Chain'){ $discount_diamond = $chain; }
+if($attribute_set_name == 'Default'){ $discount_diamond = $default; }
+if($attribute_set_name == 'Earring'){ $discount_diamond = $earring; }
+if($attribute_set_name == 'Mangalsutra'){ $discount_diamond = $mangalsutra; }
+if($attribute_set_name == 'Necklace'){ $discount_diamond = $necklace; }
+if($attribute_set_name == 'Nose Pin'){ $discount_diamond = $nose_pin; }
+if($attribute_set_name == 'Pendants'){ $discount_diamond = $pendants;}
+if($attribute_set_name == 'Ring'){ $discount_diamond = $ring;}
+/*making charge*/
+if($attribute_set_name == 'Bangel Size'){ $discount_making = $bangel_size1; }
+if($attribute_set_name == 'Chain'){ $discount_making = $chain1; }
+if($attribute_set_name == 'Default'){ $discount_making = $default1; }
+if($attribute_set_name == 'Earring'){ $discount_making = $earring1; }
+if($attribute_set_name == 'Mangalsutra'){ $discount_making = $mangalsutra1; }
+if($attribute_set_name == 'Necklace'){ $discount_making = $necklace1; }
+if($attribute_set_name == 'Nose Pin'){ $discount_making = $nose_pin1; }
+if($attribute_set_name == 'Pendants'){ $discount_making = $pendants1;}
+if($attribute_set_name == 'Ring'){ $discount_making = $ring1;}
+
+ 
+// $categoryCollection = $objectManager->get('\Magento\Catalog\Model\ResourceModel\Category\CollectionFactory');
+// $productRepository = $objectManager->get('\Magento\Catalog\Model\ProductRepository');
+
+ 
+// //$productId = 1; // YOUR PRODUCT ID
+// $product = $productRepository->getById($productId);
+ 
+// $categoryIds = $product->getCategoryIds();
+ 
+// $categories = $categoryCollection->create()
+//                                  ->addAttributeToSelect('*')
+//                                  ->addAttributeToFilter('entity_id', $categoryIds);
+ 
+// foreach ($categories as $category) {
+//     echo $category->getName() . '<br>';
+// }
+
+
+ 
+
+
+/* if ($currentProduct->getSpecialPrice() != '') {
+  $obj = \Magento\Framework\App\ObjectManager::getInstance()->get('Magento\Framework\App\ResourceConnection');
+  $connection = $obj->getConnection();
+
+  $sql = "SELECT * FROM c_offer_product where product_id='" . $currentProduct->getId() . "'";
+  $offerData = $connection->fetchRow($sql);
+
+  $themeTable = $obj->getTableName('c_offer');
+  $sql = "SELECT * FROM " . $themeTable . " WHERE id='" . $offerData['offer_id'] . "'";
+  $offerCollection = $connection->fetchRow($sql);
+
+  $discount_title = $offerCollection['title'];
+  } */
+
+$resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+$connection = $resource->getConnection();
+$storeManager = $objectManager->get('Magento\Store\Model\StoreManagerInterface');
+$currencyFactory = $objectManager->create('Magento\Directory\Model\CurrencyFactory');
+$currencyCode = $storeManager->getStore()->getCurrentCurrencyCode();
+$currency = $currencyFactory->create()->load($currencyCode);
+$currencySymbol = $currency->getCurrencySymbol();
+$fancyStonePrice = '';
+$fancyYesNo = $currentProduct->getFancyStone();
+
+if ($fancyYesNo == 1) {
+    $sqlFancy = "SELECT * FROM manage_fancystone WHERE  product_id='" . $productId . "'";
+    $resultFancyStone = $connection->fetchRow($sqlFancy);
+    $FancyStoneData = unserialize($resultFancyStone['fancystone_data']);
+
+    if (count($FancyStoneData['price']) > 0) {
+        $fancyStonePrice = array_sum($FancyStoneData['price']);
+    }
+}
+
+$PriceBreakUpYesNo = $objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue('sm_makingcharge/eviayesno/pdp');
+$shipDateYesNo = $objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue('sm_makingcharge/eviayesno/expec_ship_date');
+?>
+<?php  $PriceBreakUpYesNo; ?>
+<?php //echo $discount_title; ?>
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+   
+<div id="ex1" class="">
+
+ <?php
+        // $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
+        //     $_product = $objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+        //     $discount_diamond = $_product->getResource()->getAttribute('diamond_discount')->getFrontend()->getValue($_product);
+        //     $discount_making = $_product->getResource()->getAttribute('discount_making')->getFrontend()->getValue($_product);
+            if($discount_diamond == '' || $discount_making == ''): ?>
+  <style>
+      #totalAmount1{display: none;}
+  </style>
+              <?php  endif;  ?>
+                        <table class="itemPrichtml table-popup">
+                            <tbody>
+                                <th>Price Breakup</th>
+                                <tr>
+                                <td><span>Metal</span></td>
+                                <td id="metalTotalPrice1"></td>
+                                </tr>
+
+                                <tr>
+                                <td> <span><?php echo $discount_diamond; ?>% off on Diamond Price</span></td>
+                                <td><?php if($discount_diamond != ''):?><span id="special1"></span><?php endif;?><span id="diamondTotalPrice1"></span></td>
+                                </tr>
+
+                                <tr>
+                                <td> <span><?php echo $discount_making; ?>% off on Making Charge</span></td>
+                                <td><?php if($discount_making != ''):?><span id="specialMaking1"></span><?php endif;?></span><span id="makingChargeTotal1"></span></td>
+                                </tr>
+
+                                <tr> 
+                                    <td><span>GST</span></td>
+                                <td id ="vatTotal1"></td>
+                            </tr>
+                            <tr> 
+                                    <td><span>Total</span></td>
+                                <td><?php if($discount_diamond != '' || $discount_making != ''):?><span id="totalAmount"></span><?php endif;?><span id="totalAmountspecial"></span></td>
+                            </tr>
+                            </tbody></table>
+
+
+
+  <!-- <a href="#" rel="modal:close">Close</a> -->
+</div>
+
+  </div>
+
+</div>
+
+
+<?php if ($PriceBreakUpYesNo == 1): ?>
+
+<div class="price_bifurcation">
+<div class="panel-group price_breakup" id="pricepro">
+    <div class="panel">
+        <div class="panel-heading" role="tab" id="priceproids">
+            <h4 class="panel-title">
+                <a role="button" class="collapsed" data-toggle="collapse" data-parent="#pricepro" href="#priceproid" aria-expanded="true" aria-controls="priceproid">
+                    View Price Breakup
+                </a>
+            </h4>
+        </div>
+
+        <?php
+        // $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
+        //     $_product = $objectManager->create('Magento\Catalog\Model\Product')->load($productId);
+        //     $discount_diamond = $_product->getResource()->getAttribute('diamond_discount')->getFrontend()->getValue($_product);
+        //     $discount_making = $_product->getResource()->getAttribute('discount_making')->getFrontend()->getValue($_product);
+            ?>
+
+           
+
+        <div id="priceproid" class="collapse" role="tabpanel" aria-labelledby="priceproids">
+            <div class="panel-body">
+                        <table class="itemPrichtml">
+                            <tbody>
+                                <tr >
+                                    <td class="border_bottom"><span>Metal</span></td>
+                                    <td rowspan="2">
+                                        +
+                                    </td>
+                                    <?php if ($attribute_set_name != 'Necklace' && $attribute_set_name != 'Bangel Size' && $attribute_set_name != 'Chain'): ?>
+                                        <td class="border_bottom">
+                                            <span>Diamond</span>
+                                        </td>
+                                        <td rowspan="2">
+                                            +
+                                        </td>
+                                    <?php endif; ?> 
+                                    <?php if ($fancyYesNo == 1): ?>
+                                    <td class="border_bottom">
+                                        <span>Gemstone</span>
+                                    </td>
+                                    <td rowspan="2">
+                                        +
+                                    </td>                    
+                                <?php endif; ?> 
+                                        
+                                    <td class="border_bottom">
+                                        <span>Making Charge</span>
+                                    </td>
+                                    <td rowspan="2">
+                                        <img src="http://jewellery.eviaglobal.com/purekarat/skin/frontend/rwd/astra/images/charges-plus.png">
+                                    </td>
+                                    <td class="border_bottom">
+                                        <span>GST</span>
+                                    </td>
+                                </tr>
+                                <tr class="itemPrichtmlPric">
+                                    <td id="metalTotalPrice"></td>
+                                    <?php if ($attribute_set_name != 'Necklace' && $attribute_set_name != 'Bangel Size' && $attribute_set_name != 'Chain'): ?>
+                                        <td><?php if($discount_diamond != ''):?><span id="special"></span><?php endif;?><span id="diamondTotalPrice"></span></td>
+                                       
+                                    <?php endif; ?>
+                                <?php if ($fancyYesNo == 1): ?>
+                                    <td id="stoneTotalPrice"></td>
+                                <?php endif; ?>                                         
+                                    <td><?php if($discount_making != ''):?><span id="specialMaking"></span><?php endif;?></span><span id="makingChargeTotal"></span></td>
+                                    <td id="vatTotal"></td>
+                                </tr>
+                            </tbody>
+                        </table> 
+                    </div>
+                </div>            
+            </div>
+        </div><!-- panel-group -->
+     
+<?php endif; ?>
+
+<!-- 
+<div class="metalformation clearfix"> -->
+    <?php
+    $metalOptionIds = array();
+    $metalOptionIds = $block->getProductMetalOptions();
+    $metalOptionLabels = $block->getMetalOptions();
+
+    $purityOptionIds = array();
+    $purityOptionIds = $block->getProductPurityOptions();
+
+    $purityOptionLabels = $block->getPurityOptions();
+
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resource->getConnection();
+
+    $sql1 = "SELECT * FROM sm_productprice WHERE product_id='" . $productId . "'";
+    $result = $connection->fetchAll($sql1);
+
+    if (count($result)) {
+        $metalDefaultEx = explode('x', $result[0]['default_metal']);
+    }
+    ?>
+<div class="panel-group customize_breakup" id="custmizepro"> 
+    <div class="panel">
+        <div class="panel-heading" role="tab" id="custmizeprod">
+            <h4 class="panel-title">
+                <a role="button" class="collapsed" data-toggle="collapse" data-parent="#custmizepro" href="#custmizeproid" aria-expanded="false" aria-controls="collapseTwo">Customize This Product</a>
+            </h4>
+        </div>
+        <div id="custmizeproid" class="collapse" role="tabpanel" aria-labelledby="custmizeprod">
+            <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6 metalformation1">
+                                <label class="metal_label">Metal Selection : </label>
+                        
+                        <div class="custom-select" style="width:200px;" name="metal" id="metal">
+                             <select name="metal" id="metal" class="attr metal_type_cls">
+                                
+                              <!-- <option value="3" color="yellow"> -->
+
+                                    <?php foreach ($metalOptionIds as $valMetal): ?>
+                                        <option value="<?php echo $valMetal; ?>" <?php
+                                        if ($metalDefaultEx[0] == $valMetal) {
+                                            echo "selected";
+                                        }
+                                        $this->_resources = \Magento\Framework\App\ObjectManager::getInstance()
+                            ->get('Magento\Framework\App\ResourceConnection');
+                            $connection= $this->_resources->getConnection();
+                            $sql = "SELECT value FROM eav_attribute_option_value where option_id ='$valMetal' AND store_id =0";
+                            $result = $connection->fetchAll($sql); 
+
+                            $color= $result[0]['value'];
+                                        ?> color='<?php echo $color; ?>'><?php echo $metalOptionLabels[$valMetal]; ?></option>
+                                 <?php endforeach; ?>
+                              </select>
+                        </div>
+                                 <!-- <select name="metal" id="metal" class="attr metal_type_cls">
+                                    <option value="">Select Metal</option>
+                                    <?php foreach ($metalOptionIds as $valMetal): ?>
+                                        <option value="<?php echo $valMetal; ?>" <?php
+                                        if ($metalDefaultEx[0] == $valMetal) {
+                                            echo "selected";
+                                        }
+                                        ?>><?php echo $metalOptionLabels[$valMetal]; ?></option>
+                                            <?php endforeach; ?>
+                                </select>  -->
+                            </div>
+                         <?php  if ($attribute_set_name != 'Chain'){ ?>
+                            <div class="col-md-6 metalformation2">
+                                <div>
+                                    <form>
+                                    <?php
+                                    $i = 0;
+                                    foreach ($purityOptionIds as $valPurity):
+                                        ?>
+                                        <label class="radio-inline" for="purity_<?php echo $purityOptionIds[$i]; ?>"><?php echo $purityOptionLabels[$valPurity]; ?></label>
+                                        <input class="custom-select attr" type="radio" value="<?php echo $purityOptionIds[$i]; ?>" id="purity_<?php echo $purityOptionIds[$i]; ?>" name="purity" <?php if ($metalDefaultEx[1] == $valPurity) { ?> checked="checked" <?php } ?>>
+
+                                        <?php
+                                        $i++;
+                                    endforeach;
+                                    ?>
+                                </form>
+                                </div>
+                            </div>
+                        <?php } ?>
+                        </div>
+ 
+                        <?php
+                        if ($attribute_set_name != 'Necklace' && $attribute_set_name != 'Bangel Size' && $attribute_set_name != 'Chain'):
+                            $ccAddedIds = array();
+                            $ccAddedIds = $block->getDiamondColourClarity();
+                            $ccOptLabelSelected = $block->getDiamondClarityOptions();
+                            ?>
+                            <div class="metalformation3">
+                                <label class="diamond_selection">Diamond Quality : </label>
+                                <div class="diamond_quality">  
+                                <form> 
+                                    <?php
+                                    foreach ($ccAddedIds as $valCC):
+                                        $sqlDiamondColor = "SELECT * FROM sm_diamond_color_size_data WHERE product_id='" . $productId . "' AND color_clarity_id ='" . $valCC . "' ";
+                                        $resultDiamondColor = $connection->fetchAll($sqlDiamondColor);
+                                        //$cnt = count($resultDiamondColor);
+                                        ?>
+
+                                        <input class="custom-select attr" type="radio" value="<?php echo $valCC; ?>" id="diamond_<?php echo $valCC; ?>" name="diamond"
+                                        <?php
+                                        if (!empty($resultDiamondColor)) {
+                                            if ($resultDiamondColor[0]['color_clarity_id'] == $valCC) {
+                                                ?>checked="checked" <?php
+                                                   }
+                                               }
+                                               ?>>
+                                        <label class="radio-inline" for="diamond_<?php echo $valCC; ?>"><?php echo $ccOptLabelSelected[$valCC]; ?></label>            
+
+                                        <?php
+                                    endforeach;
+                                    ?>
+                                </form>
+                                </div>
+                            </div>            
+                           
+            <?php
+            endif;
+?>
+
+ </div>
+        </div>
+    </div> 
+</div><!-- panel-group -->    
+ </div><!-- container -->    
+<!--  <button id="myBtn" class="price-btn">Price Breakup</button> -->
+<!--  <p><a class="price-btn" href="#ex1" rel="modal:open">Price Breakup</a></p> -->
+<div class="metalformation4 row">
+   
+<?php 
+
+            if ($attribute_set_name != 'Pendants' && $attribute_set_name != 'Earring' && $attribute_set_name != 'Necklace' && $attribute_set_name != 'Mangalsutra' && $attribute_set_name != 'Nose Pin' && $attribute_set_name != 'Pendant') {
+             
+                if($attribute_set_name =='Bangel Size'){
+                $attributeCode ='bangel_size';
+                }else{
+                  $attributeCode ='ring_size';  
+                }
+
+                $entityType = 'catalog_product';
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+                $attributeId = $attributeInfo->getAttributeId();
+                if($attribute_set_name =='Bangel Size'){
+                $ringSizeIds = explode(',', $currentProduct->getBangelSize());
+                } else {
+                $ringSizeIds = explode(',', $currentProduct->getRingSize());
+                }
+                //$ds = array();
+                $RingSizecnt = count($ringSizeIds);
+
+                $attributeRigSize = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                        ->setPositionOrder('asc')
+                        ->setAttributeFilter($attributeId)
+                        ->setStoreFilter()
+                        ->load();
+                if (!empty($attributeRigSize->getData()))
+                    foreach ($attributeRigSize as $ringSize) {
+
+                        if (in_array($ringSize->getOptionId(), $ringSizeIds)) {
+                            $rSize[] = [
+                                'value' => $ringSize->getOptionId(),
+                                'label' => $ringSize->getValue()
+                            ];
+                        }
+                    }
+
+                ?>  
+
+                <div class="col-md-6">
+                    <?php if($attribute_set_name =='Bangel Size'){ ?>
+                    <label class="diamond_selectiond">Bangel Size : </label>
+                     <div>
+                        <?php
+
+                        $sqlColorSize = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $currentProduct->getId() . "'";
+                        $sizeDataCollection = $connection->fetchAll($sqlColorSize);
+                        ?>            
+                        <select id="itemSize" name="itemSize" class="custom-select attr">
+                            <option value="">Select Size</option>
+                            <?php foreach ($rSize as $ringSizeData): ?>
+                                <option value="<?php echo $ringSizeData['value']; ?>" <?php
+                                if ($sizeDataCollection[0]['ring_size'] == $ringSizeData['value']) {
+                                    echo "selected";
+                                }
+                                ?>><?php echo $ringSizeData['label']; ?></option>
+                                    <?php endforeach;
+                                    
+                                    ?>
+                        </select>
+                    </div>
+                    <div class="ring_size_guide_div">   
+                     <?php if($attribute_set_name =='Bangel Size'){ ?>
+                     <a href="<?php echo $block->getUrl("pub/media/wysiwyg/alothemes/static/")?>BANGLE_SIZE_ GUIDE_V1.pdf" class="ring_size_guide" target="_blank">Find your bangle size here</a>
+                    <?php } else { ?>
+                     <a href="<?php echo $block->getUrl("pub/media/wysiwyg/alothemes/static/")?>Ring_Measuring_Guide_Kalon.pdf" class="ring_size_guide" target="_blank">Find your ring size here</a>
+                    <?php } ?> 
+                       
+                    </div>
+                    <?php } ?>
+
+                   <?php if($attribute_set_name =='Ring'){  ?>
+                    <label class="diamond_selectiond">Ring Size : </label>
+                     <div>
+                        <?php
+
+                        $sqlColorSize = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $currentProduct->getId() . "'";
+                        $sizeDataCollection = $connection->fetchAll($sqlColorSize);
+                        ?>            
+                        <select id="itemSize" name="itemSize" class="custom-select attr">
+                            <option value="">Select Size</option>
+                            <?php foreach ($rSize as $ringSizeData): ?>
+                                <option value="<?php echo $ringSizeData['value']; ?>" <?php
+                                if ($sizeDataCollection[0]['ring_size'] == $ringSizeData['value']) {
+                                    echo "selected";
+                                }
+                                ?>><?php echo $ringSizeData['label']; ?></option>
+                                    <?php endforeach;
+                                    
+                                    ?>
+                        </select>
+                    </div>
+                    <div class="ring_size_guide_div">   
+                     <?php if($attribute_set_name =='Bangel Size'){ ?>
+                     <a href="<?php echo $block->getUrl("pub/media/wysiwyg/alothemes/static/")?>BANGLE_SIZE_ GUIDE_V1.pdf" class="ring_size_guide" target="_blank">Find your bangle size here</a>
+                    <?php } else { ?>
+                     <a href="<?php echo $block->getUrl("pub/media/wysiwyg/alothemes/static/")?>Ring_Measuring_Guide_Kalon.pdf" class="ring_size_guide" target="_blank">Find your ring size here</a>
+                    <?php } ?> 
+                       
+                    </div>
+                    <?php } ?>
+
+                </div>
+                <?php
+                
+                
+                
+                 /* Bangel Size START */
+        if ($attribute_set_name == 'Chain') {
+
+            $entityType = 'catalog_product';
+            $attributeCode = 'length_chain';
+             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+            $attributeId = $attributeInfo->getAttributeId();
+            $chainSizeIds = explode(',', $currentProduct->getLengthChain());
+
+
+                // $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+                // $attributeId = $attributeInfo->getAttributeId();
+                // if($attribute_set_name =='Bangel Size'){
+                // $ringSizeIds = explode(',', $currentProduct->getBangelSize());
+                // } else {
+                // $ringSizeIds = explode(',', $currentProduct->getRingSize());
+
+
+
+             // print_r($chainSizeIds); die;
+
+             $attributeChainSize = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                        ->setPositionOrder('asc')
+                        ->setAttributeFilter($attributeId)
+                        ->setStoreFilter()
+                        ->load();
+                if (!empty($attributeChainSize->getData()))
+                    foreach ($attributeChainSize as $chainSize) {
+
+                        if (in_array($chainSize->getOptionId(), $chainSizeIds)) {
+                            $rSize[] = [
+                                'value' => $chainSize->getOptionId(),
+                                'label' => $chainSize->getValue()
+                            ];
+                        }
+              }
+
+            // $ChainSizecnt = count($chainSizeIds);
+            // for ($i = 0; $i < $ChainSizecnt; $i++) {
+            //     $optionId = $chainSizeIds[$i];
+            //     $attributeChainSize = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            //             ->setPositionOrder('asc')
+            //             ->setAttributeFilter($attributeId)
+            //             ->setIdFilter($optionId)
+            //             ->setStoreFilter()
+            //             ->load();
+            //     if (!empty($attributeChainSize->getData()))
+            //         foreach ($attributeChainSize as $chainSize) {
+            //             $bSize[] = [
+            //                 'value' => $chainSize->getOptionId(),
+            //                 'label' => $chainSize->getValue()
+            //             ];
+            //         }
+            // }
+
+            ?>
+            <h2 style="margin-top:20px">Chain Length</h2>
+
+            <div>
+                        <?php
+
+                        $sqlColorSize = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $currentProduct->getId() . "'";
+                        $sizeDataCollection = $connection->fetchAll($sqlColorSize);
+                        ?>            
+                        <select id="itemSize" name="itemSize" class="custom-select attr">
+                            <option value="">Select Size</option>
+                            <?php foreach ($rSize as $ringSizeData): ?>
+                                <option value="<?php echo $ringSizeData['value']; ?>" <?php
+                                if ($sizeDataCollection[0]['length_chain'] == $ringSizeData['value']) {
+                                    echo "selected";
+                                }
+                                ?>><?php echo $ringSizeData['label']; ?></option>
+                                    <?php endforeach;
+                                    
+                                    ?>
+                        </select>
+                    </div>
+        
+                 
+                <?php
+            //}
+   
+
+
+        //} 
+        $entityType = 'catalog_product';
+            $attributeCode1 = 'thickness_chain';
+               $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $attributeInfo1 = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode1);
+            $attributeIds  = $attributeInfo1->getAttributeId();
+            $thicknessSizeIds = explode(',', $currentProduct->getThicknessChain());
+
+
+                // $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+                // $attributeId = $attributeInfo->getAttributeId();
+                // if($attribute_set_name =='Bangel Size'){
+                // $ringSizeIds = explode(',', $currentProduct->getBangelSize());
+                // } else {
+                // $ringSizeIds = explode(',', $currentProduct->getRingSize());
+
+
+
+             // print_r($chainSizeIds); die;
+
+             $attributethicknessSize = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                        ->setPositionOrder('asc')
+                        ->setAttributeFilter($attributeIds)
+                        ->setStoreFilter()
+                        ->load();
+                if (!empty($attributethicknessSize->getData()))
+                    foreach ($attributethicknessSize as $thickSize) {
+
+                        if (in_array($thickSize->getOptionId(), $thicknessSizeIds)) {
+                            $bSize[] = [
+                                'value' => $thickSize->getOptionId(),
+                                'label' => $thickSize->getValue()
+                            ];
+                        }
+              }
+
+            ?>
+            <h2 style="margin-top:20px">Chain Thickness</h2>
+          <div>
+                        <?php
+
+                        $sqlColorSize1 = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $currentProduct->getId() . "'";
+                        $sizeDataCollection1 = $connection->fetchAll($sqlColorSize1);
+                        ?>            
+                        <select id="itemSize1" name="itemSize1" class="custom-select attr">
+                            <option value="">Select Size</option>
+                            <?php foreach ($bSize as $chainSizeData): ?>
+                                <option value="<?php echo $chainSizeData['value']; ?>" <?php
+                                if ($sizeDataCollection1[0]['thickness_chain'] == $chainSizeData['value']) {
+                                    echo "selected";
+                                }
+                                ?>><?php echo $chainSizeData['label']; ?></option>
+                                    <?php endforeach;
+                                    
+                                    ?>
+                        </select>
+                    </div> <?php
+    }
+    /* Chain END */
+              
+            }
+              
+            ?>
+
+            <?php
+     
+    ?>
+            <div class="col-md-6 shipping_date_div">
+                <div class="Delivery_date">
+                    <div><img class="img-responsive" src="<?php echo $block->getUrl("pub/media/wysiwyg/alothemes/static/")?>shipping_date.png">
+                    <p>Delivery By </p></div>
+                    <div class="shipping_date_value"><p>Sept 29</p></div>
+                </div>
+                <div class="shipping_guide_div">    
+                  <p>This is a tentative delivery date*</p>
+                </div>
+            </div>
+        </div>
+
+        <input type="hidden" class="attr custom-select" name="fancyStonePrice" value="<?php echo $fancyStonePrice; ?>">
+        <!--<input class="attr" type="hidden" value="1" name="priceFirstCheck" id="priceFirstCheck">-->
+        <script>
+            require(['jquery'], function ($) {
+                $(document).on("click", ".custom-select", function () {
+                    var metal_id = $(this).attr('id');
+                    //alert(metal_id);
+                    calculatePrice(0);
+                    if (metal_id == 'metal') {                        
+                        var url1 = '<?php echo $block->getUrl('calculateprice/index/images')  ?>';
+                        var text = $(".select-selected").text();
+                       //alert(text);
+                      
+                        text = text.toLowerCase();
+                        
+                        var productId = '<?php echo $productId  ?>';
+                        $.ajax({
+                            type: "POST",
+                            url: url1,
+                            showLoader: true,
+                            dataType: "JSON",
+                            data: {'metal': text, 'product': productId},
+                            
+                            success: function (data) {
+                                
+                                var thumbImage = data[0].thumb;                               
+                                $(".fotorama__stage__frame img").attr("src",thumbImage);
+                                $(".fotorama__stage__frame img").attr("href",thumbImage);
+                            }
+                        });
+                    }
+                });
+
+                function calculatePrice(isLoad) {
+                    var productId = '<?php echo $productId ?>';
+                    $(".loader").show();
+                    var str = "";
+                    var str = "productId=" + productId + "&isLoad=" + isLoad;
+                    var namelist = new Array();
+                    $(".attr").each(function (i) {
+                        var n = $(this).attr("name");
+
+                        if (namelist.indexOf(n) == -1) {
+                            if (str != "") {
+                                str += "&";
+                            }
+                            if ($(this).attr("type") == "radio") {
+                                str += $(this).attr("name") + "=" + $("input[name=" + $(this).attr("name") + "]:checked").val();
+                            } else {
+                                str += $(this).attr("name") + "=" + $(this).val();
+                            }
+                            //alert(str);
+                            namelist.push($(this).attr("name"));
+                        }
+
+                    });
+                    //alert(str);
+                    var url = '<?php echo $block->getUrl('calculateprice/index/index') ?>' + "?" + str;
+                    var currencySymbol = '<?php echo $currencySymbol; ?>';
+                    // console.log(url);
+                    //var url = calculatepriceUrl+"?"+str;
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        showLoader: true,
+                        dataType: "JSON",
+                        success: function (data) {
+                            console.log(data);
+
+                            //+ Math.round(data.cashpolish) + Math.round(data.setRateCost) + Math.round(data.supplimentaryPrice) + Math.round(data.profitMargin)
+                            //var productPrice = (Math.round(data.metalTotalPrice)  + Math.round(data.diamondTotalPrice) + Math.round(data.fancyStonePrice) + Math.round(data.vatTotal)); //+ Math.round(data.makingChargeTotal)                    
+                            var productPrice = (data.finalProductTotal);
+                            //var productPrice = (Math.round(data.metalTotalPrice))  + (Math.round(data.diamondTotalPrice)) + (Math.round(data.makingChargeTotal)) + (data.vatTotal)
+                            $('.price').html(currencySymbol + productPrice);
+                            if (data.fancyStonePrice > 0) {
+                                $('#stoneTotalPrice').html(currencySymbol +(data.fancyStonePrice));
+                            }                            
+                            $('#metalTotalPrice').html(currencySymbol + (data.metalTotalPrice));
+                            $('#diamondTotalPrice').html(currencySymbol + (data.diamondTotalPrice));
+                            $('#special').html(currencySymbol + (data.special));
+                            $('#makingChargeTotal').html(currencySymbol + (data.makingChargeTotal));
+                            $('#specialMaking').html(currencySymbol + (data.specialMaking));
+                            $('#vatTotal').html(currencySymbol + (data.vatTotal));
+
+                            $('#metalTotalPrice1').html(currencySymbol + (data.metalTotalPrice));
+                            $('#diamondTotalPrice1').html(currencySymbol + (data.diamondTotalPrice));
+                            $('#special1').html(currencySymbol + (data.special));
+                            $('#makingChargeTotal1').html(currencySymbol + (data.makingChargeTotal));
+                            $('#specialMaking1').html(currencySymbol + (data.specialMaking));
+                            $('#totalAmount').html(currencySymbol + (data.finalProductTotal1));
+                            $('#totalAmount1').html(currencySymbol + (data.finalProductTotal1));
+                            $('#totalAmountspecial').html(currencySymbol + productPrice);
+                            
+                            
+                            $('#vatTotal1').html(currencySymbol + (data.vatTotal));
+                            $('#metalWeight').html(data.metalWeight);
+                            $('#metalweight1').html(data.metalWeight);
+                            $('#metalType1').html(data.metalType);
+                            $('#metalPurity1').html(data.metalPurity);
+                            $('#grossweight').html(data.grossweight);
+                            $('#metalType').html(data.metalType);
+                            $('#metalPurity').html(data.metalPurity);
+                            $('#diamondclarity').html(data.diamondclarity);
+                            $('#diamondcolor').html(data.diamondcolor);
+                             $('#diamondweight').html(data.diamondweight);
+                            $(".loader").hide();
+                        }
+                    });
+                }
+                function ready(callbackFunction) {
+                    if (document.readyState != 'loading')
+                        callbackFunction(event)
+                    else
+                        document.addEventListener("DOMContentLoaded", callbackFunction)
+                }
+                ready(event => {
+                    calculatePrice(0);
+                })
+            });
+        </script>
+
+<style type="text/css">
+select.metal_type_cls option[value="71"] 
+{ 
+    background-image: url('../pub/media/wysiwyg/alothemes/static/yellow_gold.jpg') !important;
+   background-position: calc(100% - 20px) calc(100% - 10px); 
+    width: 200px !important;
+    padding-left: 35px !important;
+}
+select.metal_type_cls option[value="69"]
+{ 
+    background-image: url('pub/media/wysiwyg/alothemes/static/yellow_gold.jpg') !important;
+    background-position: calc(100% - 20px) calc(100% - 10px); 
+    background-repeat: no-repeat; 
+        width: 200px !important;
+        padding-left: 35px !important;
+}
+select.metal_type_cls option[value="70"] 
+    { 
+        background-image: url('../pub/media/wysiwyg/alothemes/static/rose_gold.jpg') !important; 
+        background-position: calc(100% - 20px) calc(100% - 10px); 
+        background-repeat: no-repeat; 
+        width: 200px !important;
+        padding-left: 35px !important;
+      
+    }
+/*select.metal_type_cls {
+  appearance: none !important;
+  -moz-appearance: none !important;
+  -webkit-appearance: none !important;
+  text-indent: 0.01px !important;
+  text-overflow: "" !important;
+}*/
+.list-unstyled {
+    height: inherit;
+    width: 100%;
+    background: #efedf5;
+    color: #434343;
+    border: 0px solid #ececec;
+    transition: border-color .15s ease-in-out 0s,box-shadow .15s ease-in-out 0s;
+    font: 12px/15px Arial,Helvetica,sans-serif;
+     margin: 0;
+}
+.list-unstyled li {
+    padding: 8px;
+    z-index: 2;
+    font: 12px/15px Arial,Helvetica,sans-serif;
+    margin: 0;
+        text-transform: uppercase;
+}
+.list-unstyled li:not(.init) {
+    float: left;
+    width: 100%;
+    display: none;
+    background: #ececec;
+    margin: 0;
+}
+ .list-unstyled li.selected:not(.init) { background: #44aff7; }
+li.init {
+    cursor: pointer;
+    background-image: url(arrow.png);
+    background-repeat: no-repeat;
+    background-position: 98%;
+}
+.list-unstyled li:not(.init):hover {
+    background: #63c0ff;
+}
+a#submit { z-index: 1; }
+
+.list-unstyled li span {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border: solid 1px #000;
+    margin-top: 0px;
+    float: left;
+    margin-right: 9px;
+}
+.custom-select {
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none;
+}
+
+
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+.select-items div,
+.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover,
+.same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.select-items .square-box {
+  height: 18px;
+  width: 18px;
+  float: left;
+  margin-right: 20px;
+      border: 1px solid #000;
+}
+.select-selected {
+    background-color: 
+    #efedf5;
+    color: #000;
+}
+.select-items {
+    background-color: 
+    #efedf5;
+    border: 1px solid #000;
+    border-top: none;
+}
+.select-items div, .select-selected {
+    color: #000;
+    border: none;
+}
+.select-selected {
+    border: 1px solid #000;
+}
+.select-selected .square-box {
+    height: 18px;
+    width: 18px;
+    left: 0;
+    position: relative;
+    float: left;
+    margin-right: 20px;
+    border: 1px solid #000;
+}
+.price_breakup .panel, .customize_breakup .panel {
+    border: 1px solid #dddce3 !important;
+    overflow: visible !important;
+}
+.select-selected.select-arrow-active:after {
+    border-color: transparent transparent #000 transparent;
+}
+.select-selected:after {
+    border-color: #000 transparent transparent transparent;
+}
+#special {
+    text-decoration: line-through;
+    margin-right: 9px;
+}
+#specialMaking{
+  text-decoration: line-through;
+    margin-right: 9px;
+}
+#special1 {
+    text-decoration: line-through;
+    margin-right: 9px;
+}
+#specialMaking1{
+  text-decoration: line-through;
+    margin-right: 9px;
+}
+#totalAmount{
+   text-decoration: line-through;
+    margin-right: 9px; 
+}
+#totalAmount1{
+   text-decoration: line-through;
+    margin-right: 9px; 
+}
+#totalAmount1 {
+    font-size: 20px;
+}
+#ex1 {
+    overflow: hidden;
+    padding: 2px 8px ;
+}
+#ex1 .close-modal {
+    right: 4px;
+    top: 7px;
+}
+#ex1 table tr td:first-child {
+    text-align: start !important;
+}
+#ex1 table tr td:last-child {
+    text-align: right !important;
+}
+#ex1 table tr {
+    border-bottom: 1px solid #eee;
+}
+#ex1 table tr:last-child {
+    border-bottom: 0;
+}
+#ex1 table th {
+    font-size: 20px;
+    text-transform: uppercase;
+    color: #000;
+}
+.product-shop .price-btn {
+    background: #fff;
+    color: #757575 !important;
+    margin-top: 9px;
+    width: auto;
+    display: inline-block !important;
+    min-width: 170px;
+    border: solid 1px #ccc;
+    padding: 3px 20px;
+    position: relative;
+    height: 28px;
+    margin-left: 30px;
+    border-left: 0;
+    border-right: 0;
+    cursor: pointer;
+}
+div#myBtn:hover {
+    background-color: #fff;
+}
+.price_bifurcation {
+    display: inline-block;
+    width: 100%;
+}
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.product-shop .price-btn:before {
+    width: 20px;
+    height: 20px;
+    border: solid 1px#ccc;
+    position: absolute;
+    content: "";
+    left: -10px;
+    top: 3px;
+    transform: rotate(45deg);
+    border-right: 0;
+    border-top: 0;
+}
+.product-shop .price-btn:after {
+    width: 20px;
+    height: 20px;
+    border: solid 1px#ccc;
+    position: absolute;
+    content: "";
+    right: -10px;
+    top: 3px;
+    transform: rotate(45deg);
+    border-right: 0;
+    border-top: 0;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+#ex1 table tr td:last-child span:first-child {
+    margin-right: 12px;
+}
+.price-box.price-final_price {
+
+    float: left;
+
+}
+.product_description {
+    display: inline-block;
+    width: 100%;
+
+}
+#product-question-container {
+    display: none;
+}
+</style>
+
+<script>
+//     require(['jquery', 'jquery/ui'], function($){
+//   jQuery(document).ready( function() {
+  
+ 
+//     jQuery("ul").on("click", ".init", function() {
+//     jQuery(this).closest("ul").children('li:not(.init)').toggle();
+// });
+
+// var allOptions = jQuery("ul").children('li:not(.init)');
+// jQuery("ul").on("click", "li:not(.init)", function() {
+//     allOptions.removeClass('selected');
+//     // jQuery(this).addClass('selected');
+//     jQuery("ul").children('.init').html(jQuery(this).html());
+//     allOptions.toggle();
+// });
+
+//  });
+// });
+</script>
+
+<script type="text/javascript">
+    var x, i, j, selElmnt, a, b, c;
+x = document.getElementsByClassName("custom-select");
+for (i = 0; i < x.length; i++) {
+  selElmnt = x[i].getElementsByTagName("select")[0];
+  a = document.createElement("DIV");
+  a.setAttribute("class", "select-selected");
+  a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+  a2 = document.createElement("SPAN");
+  a2.setAttribute("class", "square-box");
+  a2.setAttribute("style", "background-color: " + selElmnt.options[selElmnt.selectedIndex].getAttribute("COLOR"));
+  a.appendChild(a2);
+  x[i].appendChild(a);
+  b = document.createElement("DIV");
+  b.setAttribute("class", "select-items select-hide");
+  for (j = 0; j < selElmnt.length; j++) {
+    c = document.createElement("DIV");
+    c.innerHTML = selElmnt.options[j].innerHTML;
+    d = document.createElement("SPAN");
+    d.setAttribute("class", "square-box");
+    d.setAttribute("style", "background-color: " + selElmnt.options[j].getAttribute("COLOR"));
+    c.appendChild(d);
+    c.addEventListener("click", function(e) {
+      var y, i, k, s, h;
+      s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+      h = this.parentNode.previousSibling;
+      for (i = 0; i < s.length; i++) {
+        if (s.options[i].innerText == this.innerText) {
+          s.selectedIndex = i;
+          h.innerHTML = this.innerHTML;
+          y = this.parentNode.getElementsByClassName("same-as-selected");
+          for (k = 0; k < y.length; k++) {
+            y[k].removeAttribute("class");
+          }
+          this.setAttribute("class", "same-as-selected");
+          break;
+        }
+      }
+      h.click();
+    });
+    b.appendChild(c);
+  }
+  x[i].appendChild(b);
+  a.addEventListener("click", function(e) {
+    e.stopPropagation();
+    closeAllSelect(this);
+    this.nextSibling.classList.toggle("select-hide");
+    this.classList.toggle("select-arrow-active");
+  });
+}
+
+function closeAllSelect(elmnt) {
+  var x, y, i, arrNo = [];
+  x = document.getElementsByClassName("select-items");
+  y = document.getElementsByClassName("select-selected");
+  for (i = 0; i < y.length; i++) {
+    if (elmnt == y[i]) {
+      arrNo.push(i)
+    } else {
+      y[i].classList.remove("select-arrow-active");
+    }
+  }
+  for (i = 0; i < x.length; i++) {
+    if (arrNo.indexOf(i)) {
+      x[i].classList.add("select-hide");
+    }
+  }
+}
+document.addEventListener("click", closeAllSelect);
+</script>
+
+
+
+<script>
+// Get the modal
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+

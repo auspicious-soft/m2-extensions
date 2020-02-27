@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Location: magento2_root/app/code/Vendorname/Extensionname/etc/adminhtml/system.xml
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="catalogtab" translate="label" sortOrder="1000">
+            <label>Discount Set</label>
+        </tab>
+		<section id="sm_catalogtab" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
+		<label>Discount Set</label>
+		<tab>catalogtab</tab>
+		<resource>SM_Catalogtab::config</resource>
+		<group id="general" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+		<label>Discount For Diamond</label>
+		<field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+		<label>Enabled</label>
+		<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+		</field>
+		
+		<field id="bangel_size" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Bangel Size</label>
+		</field>
+		<field id="chain" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Chain</label>
+		</field>
+		<field id="defualt" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Default</label>
+		</field>
+		<field id="earring" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Earring</label>
+		</field>
+		<field id="mangalsutra" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Mangalsutra</label>
+		</field>
+		<field id="necklace" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Necklace</label>
+		</field>
+		<field id="nose_pin" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Nose Pin</label>
+		</field>
+		<field id="pendants" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Pendants</label>
+		</field>
+		<field id="ring" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Ring</label>
+		</field>
+		
+		</group>
+
+		<group id="general1" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+		<label>Discount For Making charge</label>
+				
+		<field id="bangel_size1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Bangel Size</label>
+		</field>
+		<field id="chain1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Chain</label>
+		</field>
+		<field id="defualt1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Default</label>
+		</field>
+		<field id="earring1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Earring</label>
+		</field>
+		<field id="mangalsutra1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Mangalsutra</label>
+		</field>
+		<field id="necklace1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Necklace</label>
+		</field>
+		<field id="nose_pin1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Nose Pin</label>
+		</field>
+		<field id="pendants1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Pendants</label>
+		</field>
+		<field id="ring1" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+			<label>Ring</label>
+		</field>
+		
+		</group>
+		</section>
+
+
+      
+    </system>
+</config>
+
