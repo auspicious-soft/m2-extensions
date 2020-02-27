@@ -1,0 +1,270 @@
+<?php
+$EditUrl = $block->getUrl('sm_diamondprice/index/edit');
+$BackUrl = $block->getUrl('sm_diamondprice/index/index');
+$SaveUrl = $block->getUrl('sm_diamondprice/index/save');
+$params = $this->getRequest()->getParams();
+$id = $params['id'];
+$attributeCode = 'diamond_colour_clarity';
+$entityType = 'catalog_product';
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+$attributeId = $attributeInfo->getAttributeId();
+$attributeOptionAll = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+        ->setPositionOrder('asc')
+        ->setAttributeFilter($attributeId)
+        ->setStoreFilter()
+        ->load();
+
+$shapeCode = 'diamond_shape';
+$shapeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $shapeCode);
+$shapeId = $shapeInfo->getAttributeId();
+$shapeOptionAll = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+        ->setPositionOrder('asc')
+        ->setAttributeFilter($shapeId)
+        ->setStoreFilter()
+        ->load();
+$FormKey = $objectManager->get('Magento\Framework\Data\Form\FormKey');
+if ($id > 0) {
+    ?>
+    <main id="anchor-content" class="page-content">
+        <div class="page-main-actions"> 
+            <div class="page-actions-placeholder"></div>
+            <div class="page-actions" data-ui-id="page-actions-toolbar-content-header">
+                <div class="page-actions-inner" data-title="Edit &quot;&quot;">
+                    <div class="page-actions-buttons">
+                        <button id="back" title="Back" type="button" class="action- scalable back" onclick="location.href = '<?php echo $BackUrl; ?>';" data-ui-id="back-button">
+                            <span>Back</span>
+                        </button>
+                        <button id="reset" title="Reset" type="button" class="action- scalable reset" onclick="location.reload();" data-ui-id="reset-button">
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="page:main-container" class="page-columns">
+            <div class="admin__old">
+                <div id="container" class="main-col"><div>
+                        <div data-role="spinner"  class="admin__form-loading-mask" style="display: none;">
+                            <div class="spinner">
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="entry-edit form-inline">
+                            <div class="fieldset-wrapper">
+                                <div class="admin__fieldset-wrapper-content _hide">
+                                    <form name="diamondPrice" id="diamondPrice"  action="<?php echo $SaveUrl; ?>" method="POST" >
+                                        <input type="hidden" value="<?php echo $FormKey->getFormKey();?>" name="form_key">
+                                        <input type="hidden" value="" name="add">
+                                        <fieldset class="admin__fieldset">
+                                            <div class="admin__field" style="display: none;">
+                                                <div class="admin__field-control">
+                                                    <input class="admin__control-text" type="text" id="YVWJY72" maxlength="255">
+                                                </div>
+                                            </div>
+                                            <div class="admin__field _required">
+                                                <label class="admin__field-label">
+                                                    <span >Color Clarity</span>
+                                                </label>
+                                                <?php
+                                                $colorCode = 'diamond_colour_clarity';
+                                                $colorInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $colorCode);
+                                                $colorId = $colorInfo->getAttributeId();
+                                                $attColorClarOptionSingle = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                                                        ->setPositionOrder('asc')
+                                                        ->setAttributeFilter($attributeId)
+                                                        ->setAttributeFilter($colorId)
+                                                        ->setStoreFilter()
+                                                        ->load()
+                                                        ->getFirstItem();
+                                                $color_clarity_default = $attColorClarOptionSingle->getValue();
+                                                
+                                                $diamondCode = 'diamond_colour_clarity';
+                                                $diamondInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $diamondCode);
+                                                $diamondId = $diamondInfo->getAttributeId();
+                                                $diamondOptionAll = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                                                        ->setPositionOrder('asc')
+                                                        ->setAttributeFilter($diamondId)
+                                                        ->setStoreFilter()
+                                                        ->load();
+                                                ?>
+                                                <div class="admin__field-control">
+                                                <input class="admin__control-text" type="hidden" name="color_clarity" id="colorClaritySelected"  value="">                                                
+                                                    <select class="admin__control-select" name="metal_purity" id="colorClarity"  disabled="disabled">
+                                                        <option value="">Please Select Diamond Color Clarity</option>
+                                                        <?php foreach ($diamondOptionAll as $colorData): ?>
+                                                            <option value="<?php echo $colorData->getOptionId(); ?>" <?php if ($colorData->getOptionId() == $id) {
+                                                        echo "selected";
+                                                    } ?>><?php echo $colorData->getValue(); ?></option>
+    <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="search-table-outter wrapper">
+                                                <table class="search-table inner">
+                                                    <tbody>
+                                                        <tr>
+                                                            <?php foreach ($shapeOptionAll as $shapeData): ?>
+                                                                <td><?php echo $shapeData->getValue(); ?></td>
+                                                        <?php endforeach; ?>                                                        
+                                                            <tr>
+                                                                <?php
+                                                                foreach ($shapeOptionAll as $shapeData):
+                                                                    $resource = $objectManager->create('Magento\Framework\App\ResourceConnection');
+                                                                    $connection = $resource->getConnection();
+                                                                    $select = $connection->select()
+                                                                            ->from(
+                                                                                    ['ce' => 'sm_diamondprice'])
+                                                                            ->where('metal_purity_id=?', $id)
+                                                                            ->where('combination=?', $shapeData->getOptionId());
+                                                                    //  echo $id;die;
+                                                                    $data = $connection->fetchAll($select);
+                                                                    foreach ($data as $diamondData):
+                                                                        //echo "<pre>";print_r($diamondData);
+                                                                        ?>
+                                                                        <td>
+                                                                            <input type="text" class="diamond-type" name="combination[<?php echo $shapeData->getOptionId(); ?>]" value="<?php echo $diamondData['price']; ?>">
+                                                                        </td>
+                                                                        <?php
+                                                                    endforeach;
+                                                                endforeach;
+                                                                ?>
+                                                            </tr>
+                                                    </tbody>
+                                                </table>  
+                                            </div>
+                                        </fieldset>
+                                        <button id="save_and_continue" title="Save" type="submit" class="action- scalable save ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">
+                                                <span>Save</span>
+                                            </span>
+                                        </button> 
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+<?php } else { ?>
+    <main id="anchor-content" class="page-content">
+        <div class="page-main-actions"> 
+            <div class="page-actions-placeholder"></div>
+            <div class="page-actions" data-ui-id="page-actions-toolbar-content-header">
+                <div class="page-actions-inner" data-title="Edit &quot;&quot;">
+                    <div class="page-actions-buttons">
+                        <button id="back" title="Back" type="button" class="action- scalable back" onclick="location.href = '<?php echo $BackUrl; ?>';" data-ui-id="back-button">
+                            <span>Back</span>
+                        </button>
+                        <button id="reset" title="Reset" type="button" class="action- scalable reset" onclick="location.reload();" data-ui-id="reset-button">
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="page:main-container" class="page-columns">
+            <div class="admin__old">
+                <div id="container" class="main-col"><div>
+                        <div data-role="spinner"  class="admin__form-loading-mask" style="display: none;">
+                            <div class="spinner">
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="entry-edit form-inline">
+                            <div class="fieldset-wrapper">
+                                <div class="admin__fieldset-wrapper-content _hide">
+                                    <form name="diamondPrice" id="diamondPrice"  action="<?php echo $SaveUrl; ?>" method="POST" >
+                                        <input type="hidden" value="<?php echo $FormKey->getFormKey();?>" name="form_key">
+                                        <input type="hidden" value="add" name="add">
+                                        <fieldset class="admin__fieldset">
+                                            <div class="admin__field" style="display: none;">
+                                                <div class="admin__field-control">
+                                                    <input class="admin__control-text" type="text" id="YVWJY72" maxlength="255">
+                                                </div>
+                                            </div>
+                                            <div class="admin__field _required">
+                                                <label class="admin__field-label">
+                                                    <span >Color Clarity</span>
+                                                </label>
+                                                <?php
+                                                $colorCode = 'diamond_colour_clarity';
+                                                $colorInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $colorCode);
+                                                $colorId = $colorInfo->getAttributeId();
+                                                $colorOptionAll = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                                                        ->setPositionOrder('asc')
+                                                        ->setAttributeFilter($colorId)
+                                                        ->setStoreFilter()
+                                                        ->load();
+                                                ?>
+                                                <div class="admin__field-control">
+                                                    <select class="admin__control-select" name="color_clarity" data-validate="{required:true}" >
+                                                        <option value="">Please Select Diamond Color Clarity</option>
+                                                        <?php foreach ($colorOptionAll as $colorData): ?>
+                                                            <option value="<?php echo $colorData->getOptionId(); ?>"><?php echo $colorData->getValue(); ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="search-table-outter wrapper">
+                                                <table class="search-table inner">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>&nbsp;</td>
+                                                            <?php foreach ($shapeOptionAll as $shapeData): ?>
+                                                                    <td><?php echo $shapeData->getValue(); ?></td>
+                                                                    <td>
+                                                                        <input type="text" class="diamond-type" name="combination[<?php echo $shapeData->getOptionId(); ?>]" value="">
+                                                                    </td>                                                                
+                                                            <?php endforeach; ?>
+                                                        </tr>
+
+                                                    </tbody>
+                                                </table>  
+                                            </div>
+                                        </fieldset>
+                                        <button id="save_and_continue" title="Save" type="submit" class="action- scalable save ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">
+                                                <span>Save</span>
+                                            </span>
+                                        </button>                                       
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+<?php } ?>
+<style>
+    .search-table-outter {border:2px solid #000;padding-bottom: 30px;}
+    .search-table{table-layout: fixed; margin:40px auto 0px auto; }
+    .search-table, td, th{border-collapse:collapse; border:1px solid #777;}
+    th{padding:20px 7px; font-size:15px; color:#444; background:#66C2E0;}
+    td{padding:5px 10px; height:35px;}
+
+    .search-table-outter { overflow-x: scroll; }
+    th, td { min-width: 200px; }
+
+</style>
+<script type="text/javascript">
+    require([
+        'jquery',
+    ], function (jQuery) {
+        (function ($) {
+            $(document).ready(function () {
+                var colorClarity = $('#colorClarity option:selected').val();
+                $('#colorClaritySelected').val(colorClarity);
+                $('.action-select').click(function () {
+                    $('#action-select').toggle(300);
+                });
+            });
+        }(jQuery));
+    });
+
+//    function deleteClarity(id){
+//       
+//    }
+</script>

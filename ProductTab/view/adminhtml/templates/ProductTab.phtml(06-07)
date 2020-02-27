@@ -1,0 +1,762 @@
+<input type="checkbox" data-form-part="product_form" name="test[]" value="Hello World"> 
+<input type="checkbox" data-form-part="product_form" name="test[]" value="Hello World Two">
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product'); //get current product
+
+$mtOptIds = array();
+$mpOptIds = array();
+$mtOptIds = explode(',', $product->getMetalType());
+$mpOptIds = explode(',', $product->getMetalPurity());
+
+/**
+  Function for making combinations
+ * */
+function combinations($arrays, $i = 0) {
+//echo "in";die;
+    if (!isset($arrays[$i])) {
+        return array();
+    }
+    if ($i == count($arrays) - 1) {
+        return $arrays[$i];
+    }
+// get combinations from subsequent arrays
+    $tmp = combinations($arrays, $i + 1);
+    $result = array();
+// concat each array from tmp with each element from $arrays[$i]
+    $x = 0;
+    foreach ($arrays[$i] as $v) {
+        $y = 0;
+        foreach ($tmp as $t) {
+            $result[$x][$y] = is_array($t) ?
+                    array_merge(array($v), $t) :
+                    array($t, $v);
+            $y++;
+        }
+        $x++;
+    }
+//echo "<pre>";print_r($result);
+
+    return $result;
+}
+
+/* * *****************Metal/Purity Management Start******************* */
+/**
+  Get Metal Type Attribut options
+ * */
+$mtKey = 'metal_type';
+$entityType = 'catalog_product';
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $mtKey);
+$mtId = $attributeInfo->getAttributeId();
+$mtData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+        ->setPositionOrder('asc')
+        ->setAttributeFilter($mtId)
+        ->setStoreFilter()
+        ->load();
+
+$mtOptLabels = array();
+foreach ($mtData as $keyMT => $valMT) {
+    $mtOptLabels[$valMT->getOptionId()] = $valMT->getValue();
+}
+
+//echo "<pre>";print_r($mtOptLabels);die;
+$mpAttrKey = 'metal_purity';
+$attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $mpAttrKey);
+$mpId = $attributeInfo->getAttributeId();
+$mpData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+        ->setPositionOrder('asc')
+        ->setAttributeFilter($mpId)
+        ->setStoreFilter()
+        ->load();
+$mpOptLabels = array();
+foreach ($mpData as $keyMP => $valMP) {
+    $mpOptLabels[$valMP->getOptionId()] = $valMP->getValue();
+}
+//echo "<pre>";print_r($mpOptIds);
+$combiMetrial = combinations(array($mpOptIds, $mtOptIds));
+//echo "<pre>";print_r($combiMetrial);die;
+?>
+
+<?php
+if ($product->getId()) {
+    $obj = \Magento\Framework\App\ObjectManager::getInstance()
+            ->get('Magento\Framework\App\ResourceConnection');
+    $connection = $obj->getConnection();
+    $themeTable = $obj->getTableName('sm_productprice');
+    $sql = "SELECT * FROM " . $themeTable . " WHERE product_id ='" . $product->getId() . "'";
+    $mCollection = $connection->fetchAll($sql);
+    $cnt = count($mCollection);
+//echo "<pre>";print_r($metalDefault)."<br>";
+//  echo "<pre>";   print_r($grossSelect)."<br>";
+    if ($cnt > 0) {
+        $metalSelect = array();
+        $grossSelect = array();
+        $metalDefault = array();
+        foreach ($mCollection as $valMet) {
+            $unserData = unserialize($valMet['combination']);
+            $metalSelect = $unserData[0]['metal'];
+            $grossSelect = $unserData[1]['grossw'];
+            $metalDefault = $valMet['default_metal'];
+//$metalSelect = isset($metalSelect)?: '';
+//$grossSelect = isset($grossSelect)?: '';
+        }
+        echo "<h2>Metal/Purity Weight(In Gms)</h2>";
+        $mTab = '<input type="hidden" data-form-part="product_form" name="product_tab_id" value="' . $product->getId() . '">'
+                . '<table style="border:1px solid #c6c6c6">';
+        $mTab .= '<tr>';
+        $mTab .= '<td>&nbsp;</td>';
+        foreach ($mtOptIds as $valMT) {
+//echo "<pre>";print_r($valMT);
+            $mTab .= '<td>' . $mtOptLabels[$valMT] . '</td>';
+            $mTab .= '<td>Gross weight</td>';
+        }
+        $mTab .= '</tr>';
+
+        $i = 0;
+        foreach ($combiMetrial as $keyM => $valM) {
+            $mpIdOption = $mpOptIds[$i];
+            $mTab .= '<tr>';
+            $mTab .= '<td>' . $mpOptLabels[$mpIdOption] . '</td>';
+            foreach ($valM as $valMVal) {
+// echo "<pre>";print_r($valMVal);
+                $mCombination = '';
+                foreach ($valMVal as $keyComM => $valComM) {
+                    $mCombination .= $valComM;
+                    if ($keyComM == 0) {
+                        $mCombination .= 'x';
+                    }
+                }
+
+                $checkedDeff = '';
+                if ($metalDefault == $mCombination) {
+                    $checkedDeff = "checked";
+                }
+                $mTab .= '<td><input type="text" name="metal[' . $mCombination . ']" value="' . $metalSelect["$mCombination"] . '" data-form-part="product_form"></td>';
+                $mTab .= '<td><input style="width:80px" type="text" name="gw[' . $mCombination . ']" value="' . $grossSelect["$mCombination"] . '" data-form-part="product_form"/>'
+                        . '<input data-form-part="product_form"  type="radio" name="metal_default" id="metal_default" value="' . $mCombination . '" onclick="setMetalDefault(this.value)" ' . $checkedDeff . '></td>';
+            }
+            $mTab .= '</tr>';
+            $i++;
+        }
+
+        $mTab .= '</table>';
+
+        echo $mTab;
+    } else {
+        echo "<h2>Metal/Purity Weight(In Gms)</h2>";
+        $mTab = '<input type="hidden" data-form-part="product_form" name="product_tab_id" value="' . $product->getId() . '">'
+                . '<table style="border:1px solid #c6c6c6">';
+        $mTab .= '<tr>';
+        $mTab .= '<td>&nbsp;</td>';
+        foreach ($mtOptIds as $valMT) {
+//echo "<pre>";print_r($mtOptIds);die;
+            $mTab .= '<td>' . $mtOptLabels[$valMT] . '</td>';
+            $mTab .= '<td>Gross weight</td>';
+        }
+        $mTab .= '</tr>';
+
+        $i = 0;
+        foreach ($combiMetrial as $keyM => $valM) {
+            $mpIdOption = $mpOptIds[$i];
+            $mTab .= '<tr>';
+            $mTab .= '<td>' . $mpOptLabels[$mpIdOption] . '</td>';
+            foreach ($valM as $valMVal) {
+// echo "<pre>";print_r($valMVal);
+                $mCombination = '';
+                foreach ($valMVal as $keyComM => $valComM) {
+                    $mCombination .= $valComM;
+                    if ($keyComM == 0) {
+                        $mCombination .= 'x';
+                    }
+                }
+
+                $mTab .= '<td><input type="text" name="metal[' . $mCombination . ']" value="" data-form-part="product_form"></td>';
+                $mTab .= '<td><input style="width:80px" type="text" name="gw[' . $mCombination . ']" value="" data-form-part="product_form"/>'
+                        . '<input data-form-part="product_form"  type="radio" name="metal_default" id="metal_default" value="' . $mCombination . '" onclick="setMetalDefault(this.value)"></td>';
+            }
+            $mTab .= '</tr>';
+            $i++;
+        }
+
+        $mTab .= '</table>';
+
+        echo $mTab;
+    }
+    /*     * *****************Metal/Purity Management End******************* */
+    ?>
+    <?php
+    /*     * *****************Diamond Management Start******************* */
+    $ccAddedIds = array();
+    $ccAddedIds = explode(',', $product->getDiamondColourClarity());
+    $dshapOptIds = array();
+    $dsizeOptIds = array();
+    $dsettingOptIds = array();
+    $dshapOptIds = explode(',', $product->getDiamondShape());
+    $dsizeOptIds = explode(',', $product->getDiamondSize());
+    $dsettingOptIds = explode(',', $product->getDiamondSetting());
+
+    $mclarityIds = explode(',', $product->getDiamondColourClarity());
+    $ccKey = 'diamond_colour_clarity';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $ccKey);
+    $ccId = $attributeInfo->getAttributeId();
+    $ccData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($ccId)
+            ->setStoreFilter()
+            ->load();
+    $ccOptLabelSelected = array();
+    foreach ($ccData as $keyCC => $valCC) {
+        $ccOptLabelSelected[$valCC->getOptionId()] = $valCC->getValue();
+    }
+
+
+
+    if ($product->getDiamondColourClarity() != '') {
+        ?>        
+        <h2 style="margin-top:20px">Color/Clarity </h2>
+        <table cellspacing="0" class="form-list">
+            <tbody>
+                <?php
+                $sqlColorSize = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $product->getId() . "'";
+                $sizeDataCollection = $connection->fetchAll($sqlColorSize);
+                $cntSize = count($sizeDataCollection);
+                if ($cntSize > 0) {
+                    foreach ($sizeDataCollection as $dataColl) {
+                        foreach ($ccAddedIds as $ccCollUpdate) {
+                            $dDiffoltChecked = '';
+                            if ($dataColl['color_clarity_id'] == $ccCollUpdate) {
+                                $dDiffoltChecked = 'checked';
+                            }
+                            ?>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <div><?php echo $ccOptLabelSelected[$ccCollUpdate]; ?> <input type="radio" name="dimonddefault" id="diamond_default" value="<?php echo $ccCollUpdate; ?>" onclick="setDiamondDefault(this.value)" data-form-part="product_form" <?php echo $dDiffoltChecked; ?>>
+                                        <input type="hidden" name="default_diamond_color_id" value="<?php echo $ccCollUpdate; ?>" id="default_diamond_color_id" data-form-part="product_form"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                } else {
+                    foreach ($ccAddedIds as $ccCollUpdate) {
+                        ?>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>
+                                <div><?php echo $ccOptLabelSelected[$ccCollUpdate]; ?> <input type="radio" name="dimonddefault" id="diamond_default" value="<?php echo $ccCollUpdate; ?>" onclick="setDiamondDefault(this.value)" data-form-part="product_form">
+                                    <input type="hidden" name="default_diamond_color_id" value="<?php echo $ccCollUpdate; ?>" id="default_diamond_color_id" data-form-part="product_form"/>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                }
+                ?>
+            </tbody>
+        </table>
+
+        <?php
+    }
+    /**
+      Get Dimond  Shape Attribut options
+     * */
+    $dshapKey = 'diamond_shape';
+    $entityType = 'catalog_product';
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $dshapKey);
+    $dshapId = $attributeInfo->getAttributeId();
+    $dsshapData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($dshapId)
+            ->setStoreFilter()
+            ->load();
+    $dshapOptLabels = array();
+    foreach ($dsshapData as $keyDShap => $valDShap) {
+        $dshapOptLabels[$valDShap->getOptionId()] = $valDShap->getValue();
+    }
+    /**
+      Get Dimond  Size Attribut options
+     * */
+    $dsizeKey = 'diamond_size';
+    $entityType = 'catalog_product';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $dsizeKey);
+    $dsizeId = $attributeInfo->getAttributeId();
+    $dsizeData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($dsizeId)
+            ->setStoreFilter()
+            ->load();
+    $dsizeOptLabels = array();
+    foreach ($dsizeData as $keyDSize => $valDSsize) {
+        $dsizeOptLabels[$valDSsize->getOptionId()] = $valDSsize->getValue();
+    }
+
+    /**
+      Get Dimond  Setting Attribut options
+     * */
+    $dsettingKey = 'diamond_setting';
+    $entityType = 'catalog_product';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $dsettingKey);
+    $dsettingId = $attributeInfo->getAttributeId();
+    $dsettingData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($dsettingId)
+            ->setStoreFilter()
+            ->load();
+    $dsettingOptLabels = array();
+    foreach ($dsettingData as $keyDSetting => $valDSetting) {
+        $dsettingOptLabels[$valDSetting->getOptionId()] = $valDSetting->getValue();
+    }
+    $sqlColorSize = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $product->getId() . "'";
+    $sizeDataCollection = $connection->fetchAll($sqlColorSize);
+    $cntColorsize = count($sizeDataCollection);
+    if ($cntColorsize > 0) {
+        // echo "<pre>";print_r($dshapOptIds);die;
+        ?>        
+        <table cellspacing="0" class="form-list">
+            <tbody>
+                <tr>
+                    <td>
+                        <div>
+                            <input type="button" value="Add Row" onclick="addRow('dataTable_<?php echo $ccCollUpdate ?>')"/>
+                            <input type="button" value="Delete Row" onclick="deleteRow('dataTable_<?php echo $ccCollUpdate ?>')"/>
+                            <table width="600px" cellspacing="0" style="margin-top:10px;magin-bottom:5px">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Diamond Shape</th>
+                                    <th>Diamond Size</th>
+                                    <th>Weight in Carat </th>
+                                    <th>No Of Diamond</th>
+                                    <th>Diamond Setting</th>
+                                </tr>
+                            </table>
+                            <table cellspacing="0" id="dataTable_<?php echo $ccCollUpdate ?>" width="600px" border="1px solid #ccc">
+                                <?php
+                                foreach ($sizeDataCollection as $dataColl) {
+                                    ?>
+                                    <tr>
+                                        <td><input type="checkbox" name="chk" data-form-part="product_form"></td>
+                                        <td style="width:120px">
+                                            <select name="diamond[shape][]" data-form-part="product_form">
+                                                <?php foreach ($dshapOptIds as $valDshape) { ?>
+                                                    <option value="<?php echo $valDshape; ?>" <?php
+                                                    if ($dataColl['diamond_shape_id'] == $valDshape) {
+                                                        echo "selected";
+                                                    }
+                                                    ?>><?php echo $dshapOptLabels[$valDshape]; ?></option>
+                                                        <?php } ?>
+
+                                            </select>											
+
+                                        </td>
+                                        <td>
+                                            <select name="diamond[size][]" data-form-part="product_form">
+                                                <?php foreach ($dsizeOptIds as $valDSize) { ?>
+                                                    <option value="<?php echo $valDSize; ?>" <?php
+                                                    if ($dataColl['diamond_size_id'] == $valDSize) {
+                                                        echo "selected";
+                                                    }
+                                                    ?>><?php echo $dsizeOptLabels[$valDSize]; ?></option>
+                                                        <?php } ?>
+
+                                            </select>											
+
+                                        </td>
+                                        <td>
+                                            <input style="width:50px" type="text" name="diamond[carat][]" value="<?php echo $dataColl['weight_in_carat'] ?>" data-form-part="product_form">							
+
+                                        </td>
+                                        <td>
+                                            <input style="width:50px" type="text" name="diamond[no_of_diamond][]" value="<?php echo $dataColl['no_of_diamond'] ?>" data-form-part="product_form">							
+
+                                        </td>
+                                        <td>
+                                            <select name="diamond[setting][]" data-form-part="product_form">
+                                                <?php foreach ($dsettingOptIds as $valDSetting) { ?>
+                                                    <option value="<?php echo $valDSetting; ?>" <?php
+                                                    if ($dataColl['diamond_setting'] == $valDSetting) {
+                                                        echo "selected";
+                                                    }
+                                                    ?>><?php echo $dsettingOptLabels[$valDSetting]; ?></option>
+                                                        <?php } ?>
+
+                                            </select>											
+
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    <?php } else {
+        ?>
+        <table cellspacing="0" class="form-list">
+            <tbody>
+                <tr>
+                    <td>
+                        <div>
+                            <input type="button" value="Add Row" onclick="addRow('dataTable_<?php echo $ccCollUpdate ?>')"/>
+                            <input type="button" value="Delete Row" onclick="deleteRow('dataTable_<?php echo $ccCollUpdate ?>')"/>
+                            <table width="600px" cellspacing="0" style="margin-top:10px;magin-bottom:5px">
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Diamond Shape</th>
+                                    <th>Diamond Size</th>
+                                    <th>Weight in Carat </th>
+                                    <th>No Of Diamond</th>
+                                    <th>Diamond Setting</th>
+                                </tr>
+                            </table>
+                            <table cellspacing="0" id="dataTable_<?php echo $ccCollUpdate ?>" width="600px" border="1px solid #ccc">
+
+                                <tr>
+                                    <td><input type="checkbox" name="chk"></td>
+                                    <td style="width:120px">
+                                        <select name="diamond[shape][]" data-form-part="product_form">
+                                            <?php foreach ($dshapOptIds as $valDshape) { ?>
+                                                <option value="<?php echo $valDshape; ?>"><?php echo $dshapOptLabels[$valDshape]; ?></option>
+                                            <?php } ?>
+                                        </select>											
+
+                                    </td>
+                                    <td>
+                                        <select name="diamond[size][]" data-form-part="product_form">
+                                            <?php foreach ($dsizeOptIds as $valDSize) { ?>
+                                                <option value="<?php echo $valDSize; ?>" ><?php echo $dsizeOptLabels[$valDSize]; ?></option>
+                                            <?php } ?>
+
+                                        </select>											
+
+                                    </td>
+                                    <td>
+                                        <input style="width:50px" type="text" name="diamond[carat][]" value="" data-form-part="product_form">							
+
+                                    </td>
+                                    <td>
+                                        <input style="width:50px" type="text" name="diamond[no_of_diamond][]" value="" data-form-part="product_form">							
+
+                                    </td>
+                                    <td>
+                                        <select name="diamond[setting][]" data-form-part="product_form">
+                                            <?php foreach ($dsettingOptIds as $valDSetting) { ?>
+                                                <option value="<?php echo $valDSetting; ?>"><?php echo $dsettingOptLabels[$valDSetting]; ?></option>
+                                            <?php } ?>
+
+                                        </select>											
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>        
+    <?php } ?>
+    <?php
+    /* Fancy Stone Management */
+    $StoneTypeIds = array();
+    $StoneTypeIds = explode(',', $product->getStoneType());
+    $STKey = 'stone_type';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $STKey);
+    $STId = $attributeInfo->getAttributeId();
+    $STData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($STId)
+            ->setStoreFilter()
+            ->load();
+    $STOptLabelSelected = array();
+    foreach ($STData as $keyST => $valST) {
+        $STOptLabelSelected[$valST->getOptionId()] = $valST->getValue();
+    }
+
+    $StoneColorIds = array();
+    $StoneColorIds = explode(',', $product->getStoneColor());
+    $SCKey = 'stone_color';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $SCKey);
+    $SCId = $attributeInfo->getAttributeId();
+    $SCData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($SCId)
+            ->setStoreFilter()
+            ->load();
+    $SCOptLabelSelected = array();
+    foreach ($SCData as $keySC => $valSC) {
+        $SCOptLabelSelected[$valSC->getOptionId()] = $valSC->getValue();
+    }
+
+    $StoneShapeIds = array();
+    $StoneShapeIds = explode(',', $product->getStoneShape());
+    $SSKey = 'stone_shape';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $SSKey);
+    $SSId = $attributeInfo->getAttributeId();
+    $SSData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($SSId)
+            ->setStoreFilter()
+            ->load();
+    $SSOptLabelSelected = array();
+    foreach ($SSData as $keySS => $valSS) {
+        $SSOptLabelSelected[$valSS->getOptionId()] = $valSS->getValue();
+    }
+    $StoneSettingIds = array();
+    $StoneSettingIds = explode(',', $product->getStoneSetting());
+    $SSettKey = 'stone_setting';
+    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $SSettKey);
+    $SSettId = $attributeInfo->getAttributeId();
+    $SSettData = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+            ->setPositionOrder('asc')
+            ->setAttributeFilter($SSettId)
+            ->setStoreFilter()
+            ->load();
+    $SSettOptLabelSelected = array();
+    foreach ($SSettData as $keySSett => $valSSett) {
+        $SSettOptLabelSelected[$valSSett->getOptionId()] = $valSSett->getValue();
+    }
+    ?>
+    <div>
+        <h2 style="margin-top:20px">Fancy Stone</h2>
+        <input type="button" value="Add Row" onclick="addfancystoneRow('fancy_store')">
+        <input type="button" value="Delete Row" onclick="deleteFancyRow('fancy_store')">
+        <form name="" action="" method="POST">
+        <table width="850px" cellspacing="0" style="margin-top:10px;margin-bottom:5px;">
+            <tbody>
+                <tr>
+                    <th>Select</th>
+                    <th>Stone type</th>
+                    <th>Stone color</th>
+                    <th>Stone Dimension</th>
+                    <th>Stone Price</th>
+                    <th>Stone Shape</th>
+                    <th>Number of stone</th>
+                    <th>Stone setting</th>
+                </tr>
+            </tbody>
+        </table>
+        <table cellspacing="0" id="fancy_store" width="800px" border="1px solid #ccc">
+            <tbody>
+                <tr> 
+                    <td><input type="checkbox" name="chk"></td>
+                    <td style="width:115px">
+                        <select name="stone[type][]" data-form-part="product_form">
+                            <?php foreach ($STOptLabelSelected as $keyST => $valueST): ?>
+                                <option value="<?php echo $keyST; ?>"><?php echo $valueST; ?></option>	
+                            <?php endforeach; ?>
+                        </select>											
+                    </td>
+                    <td>
+                        <select name="stone[color][]" data-form-part="product_form">
+                            <?php foreach ($SCOptLabelSelected as $keySC => $valueSC): ?>
+                                <option value="<?php echo $keySC; ?>"><?php echo $valueSC; ?></option>
+                            <?php endforeach; ?>
+                        </select>											
+
+                    </td>
+                    <td>
+                        <input style="width:50px" type="text" name="stone[dimension][]" value="" data-form-part="product_form">
+                    </td>
+                    <td>
+                        <input style="width:50px" type="text" name="stone[price][]" value="" data-form-part="product_form">
+                    </td>
+                    <td>
+                        <select name="stone[shape][]" data-form-part="product_form">
+                            <?php foreach ($SSOptLabelSelected as $keySS => $valueSS): ?>
+                                <option value="<?php echo $keySS; ?>"><?php echo $valueSS; ?></option>
+                            <?php endforeach; ?>
+                        </select>											
+
+                    </td>
+                    <td>
+                        <input style="width:50px" type="text" name="stone[num][]" value="" data-form-part="product_form">
+                    </td>
+                    <td>
+                        <select name="stone[setting][]" data-form-part="product_form">
+                            <?php foreach ($SSettOptLabelSelected as $keySSett => $valueSSett): ?>
+                                <option value="<?php echo $keySSett; ?>"><?php echo $valueSSett; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    </div>        
+
+    <div>
+        <?php
+        $attributeCode = 'ring_size';
+        $entityType = 'catalog_product';
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+        $attributeId = $attributeInfo->getAttributeId();
+        $ringSizeIds = explode(',', $product->getRingSize());
+        //echo "<pre>";print_r($ringSizeIds);
+//$ds = array();
+        $RingSizecnt = count($ringSizeIds);
+        for ($i = 0; $i < $RingSizecnt; $i++) {
+            $optionId = $ringSizeIds[$i];
+            $attributeRigSize = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                    ->setPositionOrder('asc')
+                    ->setAttributeFilter($attributeId)
+                    ->setIdFilter($optionId)
+                    ->setStoreFilter()
+                    ->load();
+            if (!empty($attributeRigSize->getData()))
+                foreach ($attributeRigSize as $ringSize) {
+                    $rSize[] = [
+                        'value' => $ringSize->getOptionId(),
+                        'label' => $ringSize->getValue()
+                    ];
+                }
+        }
+        ?>
+        <h2 style="margin-top:20px">Ring Size</h2>
+        <?php
+        $sqlColorSize = "SELECT * FROM sm_diamond_color_size_data WHERE product_id ='" . $product->getId() . "'";
+        $sizeDataCollection = $connection->fetchAll($sqlColorSize);
+        $cnt1 = count($sizeDataCollection);
+        if ($cnt > 0) {
+            foreach ($sizeDataCollection as $dataColl) {
+                ?>
+                <select id="size_default" name="itemSize" class="attr"  onchange="setSizeDefault(this.value)" data-form-part="product_form">
+                    <?php
+                    foreach ($rSize as $ringSizeData):
+                        ?>
+                        <option value="<?php echo $ringSizeData['value']; ?>" <?php
+                if ($dataColl['ring_size'] == $ringSizeData['value']) {
+                    echo "selected";
+                }
+                        ?>><?php echo $ringSizeData['label']; ?></option>
+                            <?php endforeach; ?>
+                </select>
+            </div>        
+            <?php
+        }
+    } else {
+        ?>
+        <select id="size_default" name="itemSize" class="attr"  onchange="setSizeDefault(this.value)" data-form-part="product_form">
+            <?php
+            foreach ($rSize as $ringSizeData):
+                ?>
+                <option value="<?php echo $ringSizeData['value']; ?>"><?php echo $ringSizeData['label']; ?></option>
+            <?php endforeach; ?>
+        </select>     
+    <?php }
+    ?>
+
+    <?php
+}
+
+
+else {
+    echo "<h1 style='padding:20px;border:1px;width:90%;height:75%;background-color:lightgrey;font-type:lucidia;'>Warning : After save product then you can add Advance Setting</h1>";
+}
+?>
+<script>
+    function setMetalDefault(dm) {
+        //alert(dm);
+        document.getElementById('metal_default').value = dm;
+    }
+    function setDiamondDefault(dm) {
+        //alert(dm);
+        document.getElementById('diamond_default').value = dm;
+        document.getElementById('default_diamond_color_id').value = dm;
+    }
+    function setSizeDefault(ds) {
+        //alert(dm);
+        document.getElementById('size_default').value = ds;
+    }
+</script>
+<SCRIPT language="javascript">
+    function addRow(tableID) {
+        var table = document.getElementById(tableID);
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+        var colCount = table.rows[0].cells.length;
+        for (var i = 0; i < colCount; i++) {
+            var newcell = row.insertCell(i);
+            newcell.innerHTML = table.rows[0].cells[i].innerHTML;
+            switch (newcell.childNodes[0].type) {
+                case "text":
+                    newcell.childNodes[0].value = "";
+                    break;
+                case"checkbox":
+                    newcell.childNodes[0].checked = false;
+                    break;
+                case "select-one":
+                    newcell.childNodes[0].selectedIndex = 0;
+                    break;
+            }
+        }
+    }
+    function addfancystoneRow(tableID) {
+        var table = document.getElementById(tableID);
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+        var colCount = table.rows[0].cells.length;
+        for (var i = 0; i < colCount; i++) {
+            var newcell = row.insertCell(i);
+            newcell.innerHTML = table.rows[0].cells[i].innerHTML;
+            switch (newcell.childNodes[0].type) {
+                case "text":
+                    newcell.childNodes[0].value = "";
+                    break;
+                case"checkbox":
+                    newcell.childNodes[0].checked = false;
+                    break;
+                case "select-one":
+                    newcell.childNodes[0].selectedIndex = 0;
+                    break;
+            }
+        }
+    }
+    function deleteRow(tableID) {
+        try {
+            var table = document.getElementById(tableID);
+            var rowCount = table.rows.length;
+            for (var i = 0; i < rowCount; i++) {
+                var row = table.rows[i];
+                var chkbox = row.cells[0].childNodes[0];
+                if (null != chkbox && true == chkbox.checked) {
+                    if (rowCount <= 1) {
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    table.deleteRow(i);
+                    rowCount--;
+                    i--;
+                }
+            }
+        } catch (e) {
+            alert(e);
+        }
+    }
+    function deleteFancyRow(tableID) {
+        try {
+            var table = document.getElementById(tableID);
+            var rowCount = table.rows.length;
+            for (var i = 0; i < rowCount; i++) {
+                var row = table.rows[i];
+                var chkbox = row.cells[0].childNodes[0];
+                if (null != chkbox && true == chkbox.checked) {
+                    if (rowCount <= 1) {
+                        alert("Cannot delete all the rows.");
+                        break;
+                    }
+                    table.deleteRow(i);
+                    rowCount--;
+                    i--;
+                }
+            }
+        } catch (e) {
+            alert(e);
+        }
+    }
+</SCRIPT>

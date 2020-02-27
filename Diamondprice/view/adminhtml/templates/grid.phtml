@@ -1,0 +1,116 @@
+<?php
+$NewUrl = $block->getUrl('sm_diamondprice/index/edit/id/0');
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+$connection = $resource->getConnection();
+$select = $connection->select()
+        ->from(
+        ['ce' => 'sm_diamondprice'], ['sm_diamondprice_id', 'metal_purity_id']
+);
+$data = $connection->fetchAll($select);
+$temp = array_unique(array_column($data, 'metal_purity_id'));
+$unique_arr = array_intersect_key($data, $temp);
+?>
+<main id="anchor-content" class="page-content">
+    <div class="page-main-actions">    
+        <div class="page-actions-placeholder"></div>
+        <div class="page-actions" data-ui-id="page-actions-toolbar-content-header">
+            <div class="page-actions-inner" data-title="Manage Diamond price">
+                <div class="page-actions-buttons">
+                    <button id="add" title="Add New" type="button" class="action- scalable primary" onclick="location.href = '<?php echo $NewUrl; ?>';">
+                        <span>Add New</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="page:main-container" class="page-columns">
+        <div class="admin__old">
+            <div id="container" class="main-col">
+                <div class="admin__data-grid-outer-wrap">
+                    <div class="admin__data-grid-loading-mask" style="display: none;">
+                        <div class="spinner">
+                            <span></span>
+                        </div>
+                    </div>
+                    <div class="admin__data-grid-wrap" data-role="grid-wrapper">
+                        <table class="data-grid data-grid-draggable" data-role="grid">
+                            <thead>
+                                <tr>
+                                    <th class="data-grid-th _sortable _draggable">
+                                        <span class="data-grid-cell-content" >Color Clarity</span>
+                                    </th>
+
+                                    <th class="data-grid-th">
+                                        <span class="data-grid-cell-content" >Action</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                foreach ($unique_arr as $data):
+                                    $attributeCode = 'diamond_colour_clarity';
+                                    $entityType = 'catalog_product';
+                                    $attributeInfo = $objectManager->create(\Magento\Eav\Model\Entity\Attribute::class)->loadByCode($entityType, $attributeCode);
+                                    $attributeId = $attributeInfo->getAttributeId();
+                                    $optionId = $data['metal_purity_id'];
+                                    $attributeOptionSingle = $objectManager->create(\Magento\Eav\Model\ResourceModel\Entity\Attribute\Option\Collection::class)
+                                            ->setPositionOrder('asc')
+                                            ->setAttributeFilter($attributeId)
+                                            ->setIdFilter($optionId)
+                                            ->setStoreFilter()
+                                            ->load();
+                                    $optionValue = $attributeOptionSingle->getData();
+                                    if (!empty($optionValue)) {
+                                        ?>                                
+                                        <tr class="data-row _odd-row">
+                                            <?php if (count($data) > 0): ?>
+                                                <td>
+                                                    <div class="data-grid-cell-content"><?php echo $optionValue[0]['value']; ?></div>
+                                                </td>
+                                                <td  class="data-grid-actions-content">
+                                                    <a class="action-menu-item" target="_self" href="<?php echo $block->getUrl('sm_diamondprice/index/edit/id/' . $optionValue[0]['option_id']); ?>
+                                                       ">Edit</a>
+
+                                                </td>
+                                            <?php else: ?>
+                                                <td>
+                                                    <div class="data-grid-cell-content">No record found.</div>
+                                                </td>
+                                            <?php endif;
+                                            ?>
+                                        </tr>
+                                    <?php } endforeach; ?>
+                            </tbody>
+                        </table> 
+                    </div>
+                    <div style="display: none;">
+                        <span class="data-grid-cap-left"></span>
+                        <span class="data-grid-cap-right"></span>
+                        <div>
+                            <div class="admin__data-grid-header">
+                                <div class="admin__data-grid-header-row">
+                                    <div class="admin__data-grid-actions-wrap"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script type="text/javascript">
+    require([
+        'jquery',
+    ], function (jQuery) {
+        (function ($) {
+            $(document).ready(function () {
+                $('.action-select').click(function () {
+                    $('#action-select').toggle(300);
+                });
+            });
+        }(jQuery));
+    });
+
+</script>

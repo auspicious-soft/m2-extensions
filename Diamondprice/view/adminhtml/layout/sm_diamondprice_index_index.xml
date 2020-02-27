@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<!--    <head>
+        Diamond Price
+    </head>-->
+    <body>
+<!--        <referenceBlock name="page.title">
+            <action method="setPageTitle">
+                <argument translate="true" name="title" xsi:type="string">Manage Diamond Price</argument>
+            </action>
+        </referenceBlock>        -->
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" name="sm_diamondprice" template="SM_Diamondprice::grid.phtml" />
+        </referenceContainer>
+    </body>
+</page>
