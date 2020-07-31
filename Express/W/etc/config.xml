@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    ClassyLlama
+ * @copyright   Copyright (c) 2017 Classy Llama Studios, LLC
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <expressw>
+                <active>1</active>
+                <model>Express\W\Model\Carrier\ExpressW</model>
+                <name>Express W</name>
+                <price>22.00</price>
+                <title>Express W</title>
+                <sallowspecific>0</sallowspecific>
+                <sort_order>100</sort_order>
+				<handling_type>F</handling_type>
+            </expressw>
+        </carriers>
+    </default>
+</config>

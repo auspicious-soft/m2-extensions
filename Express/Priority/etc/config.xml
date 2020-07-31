@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category    ClassyLlama
+ * @copyright   Copyright (c) 2017 Classy Llama Studios, LLC
+ */
+ -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <expresspriority>
+                <active>1</active>
+                <model>Express\Priority\Model\Carrier\ExpressPriority</model>
+                <name>Express Priority</name>
+                <price>37.50</price>
+                <title>Express Priority</title>
+                <sallowspecific>0</sallowspecific>
+                <sort_order>100</sort_order>
+				<handling_type>F</handling_type>
+            </expresspriority>
+        </carriers>
+    </default>
+</config>
